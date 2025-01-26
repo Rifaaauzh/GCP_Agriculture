@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'logsign.dart';
 import 'login.dart';
 
@@ -20,24 +21,91 @@ class registerpage extends StatelessWidget {
   }
 }
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
-  void _showSuccessMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Successfully Registered! Please log in.'),
-        duration: Duration(seconds: 3),
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
       ),
     );
+  }
 
-    // Navigate to login page after showing success message
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const login()),
+  Future<void> _register(BuildContext context) async {
+    if (passwordController.text != confirmPasswordController.text) {
+      _showErrorDialog("Passwords do not match");
+      return;
+    }
+
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
-    });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully Registered! Please log in.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      // Navigate to login page after successful registration
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const login()),
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = "This email is already in use.";
+          break;
+        case 'invalid-email':
+          errorMessage = "Invalid email address.";
+          break;
+        case 'weak-password':
+          errorMessage = "Password should be at least 6 characters.";
+          break;
+        default:
+          errorMessage = "An unexpected error occurred. Please try again.";
+      }
+      _showErrorDialog(errorMessage);
+    } catch (e) {
+      _showErrorDialog("An unexpected error occurred.");
+    }
   }
 
   @override
@@ -93,7 +161,7 @@ class RegisterPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const logsign()),
-                      ); 
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -131,12 +199,14 @@ class RegisterPage extends StatelessWidget {
                         label: "Name",
                         hint: "Enter your full name",
                         icon: Icons.person,
+                        controller: nameController,
                       ),
                       const SizedBox(height: 16),
                       _buildInputField(
                         label: "Email",
                         hint: "hello@gmail.com",
                         icon: Icons.email,
+                        controller: emailController,
                       ),
                       const SizedBox(height: 16),
                       _buildInputField(
@@ -144,6 +214,7 @@ class RegisterPage extends StatelessWidget {
                         hint: "************",
                         icon: Icons.lock,
                         obscureText: true,
+                        controller: passwordController,
                       ),
                       const SizedBox(height: 16),
                       _buildInputField(
@@ -151,12 +222,13 @@ class RegisterPage extends StatelessWidget {
                         hint: "************",
                         icon: Icons.lock,
                         obscureText: true,
+                        controller: confirmPasswordController,
                       ),
                       const SizedBox(height: 60),
                       // Create Account Button
                       ElevatedButton(
                         onPressed: () {
-                          _showSuccessMessage(context); // Show success message and navigate
+                          _register(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF7E57C2), // Purple button
@@ -192,6 +264,7 @@ class RegisterPage extends StatelessWidget {
     required String label,
     required String hint,
     required IconData icon,
+    required TextEditingController controller,
     bool obscureText = false,
   }) {
     return Column(
@@ -207,6 +280,7 @@ class RegisterPage extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hint,
