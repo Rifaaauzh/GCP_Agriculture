@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'logsign.dart';
 import 'dashboard.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(const login());
 }
 
@@ -20,8 +24,64 @@ class login extends StatelessWidget {
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // Text editing controllers for email and password
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  // Firebase Auth instance
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  @override
+  void dispose() {
+    // Dispose controllers when the widget is removed
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login(BuildContext context) async {
+    try {
+      await auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Navigate to Dashboard on successful login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Show error dialog for FirebaseAuth errors
+      _showErrorDialog(context, e.message ?? "Login failed");
+    } catch (e) {
+      _showErrorDialog(context, "An unexpected error occurred");
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +167,7 @@ class LoginScreen extends StatelessWidget {
                     label: "Email",
                     hint: "hello@gmail.com",
                     icon: Icons.email,
+                    controller: emailController,
                   ),
                   const SizedBox(height: 20),
                   // Password Input
@@ -115,18 +176,13 @@ class LoginScreen extends StatelessWidget {
                     hint: "************",
                     icon: Icons.lock,
                     obscureText: true,
+                    controller: passwordController,
                   ),
                   const SizedBox(height: 90),
                   // Login Button
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                        print("Login button pressed");
-                      },
+                      onPressed: () => _login(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7E57C2), // Purple button
                         shape: RoundedRectangleBorder(
@@ -157,6 +213,7 @@ class LoginScreen extends StatelessWidget {
     required String label,
     required String hint,
     required IconData icon,
+    required TextEditingController controller,
     bool obscureText = false,
   }) {
     return Column(
@@ -172,6 +229,7 @@ class LoginScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hint,
