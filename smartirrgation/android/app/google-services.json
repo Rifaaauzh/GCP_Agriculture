@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "245990157157",
+    "project_id": "cpc357-project-448301",
+    "storage_bucket": "cpc357-project-448301.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245990157157:android:b76d2fb8743a3e37b40f8c",
+        "android_client_info": {
+          "package_name": "com.example.smartirrgation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOFm3pO94pGnjRsRxbjykgUJlcltaZDFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
