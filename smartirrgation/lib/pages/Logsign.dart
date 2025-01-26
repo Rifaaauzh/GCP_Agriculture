@@ -13,7 +13,7 @@ class logsign extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: Colors.white, // White background
+        scaffoldBackgroundColor: Colors.white, 
       ),
       home: const LoginSignUp(),
     );
@@ -32,22 +32,22 @@ class LoginSignUp extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(height: 50), // Space above the logo
+          const SizedBox(height: 50), 
           // Logo and Title Section
           Column(
             children: [
               Image.asset(
                 'assets/images/farm_logo.png', // Keep the same image
-                width: screenWidth * 0.6, // Adjusted logo size
+                width: screenWidth * 0.6, 
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 20), // Space between image and text
+              const SizedBox(height: 20), 
               const Text(
                 'Your Best Irrigation System',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF4A154B), // Same purple text color
-                  fontSize: 18, // Text size remains the same
+                  fontSize: 18, 
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w500,
                 ),
@@ -94,7 +94,7 @@ class LoginSignUp extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20), // Space between buttons
+                  const SizedBox(height: 20), 
                   // Sign Up Button
                   ElevatedButton(
                     onPressed: () {
@@ -104,11 +104,11 @@ class LoginSignUp extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFBA68C8), // Same button color
+                      backgroundColor: const Color(0xFFBA68C8), 
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      minimumSize: Size(screenWidth * 0.6, 50), // Adjusted button size
+                      minimumSize: Size(screenWidth * 0.6, 50), 
                     ),
                     child: const Text(
                       'Sign Up',
